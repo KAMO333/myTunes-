@@ -1,43 +1,77 @@
-// Responsive Nav
-$(function () {
-  menu = $("nav ul");
+class NavigationController {
+  constructor() {
+    this.menu = document.querySelector("nav ul");
+    this.toggleButton = document.getElementById("openup");
+    this.navLinks = document.querySelectorAll("nav li");
+    this.scrollLinks = document.querySelectorAll(".cf a");
+    this.openMenuContainer = document.querySelector(".open-menu");
+    this.mobileBreakpoint = 580; // Updated to match your CSS media query
 
-  $("#openup").on("click", function (e) {
-    e.preventDefault();
-    menu.slideToggle();
-  });
-
-  $(window).resize(function () {
-    var w = $(this).width();
-    if (w > 480 && menu.is(":hidden")) {
-      menu.removeAttr("style");
-    }
-  });
-
-  $("nav li").on("click", function (e) {
-    var w = $(window).width();
-    if (w < 480) {
-      menu.slideToggle();
-    }
-  });
-  $(".open-menu").height($(window).height());
-});
-
-// Smooth Scrolling
-$(".cf a").on("click", function (event) {
-  if (this.hash !== "") {
-    event.preventDefault();
-
-    const hash = this.hash;
-
-    $("html, body").animate(
-      {
-        scrollTop: $(hash).offset().top,
-      },
-      800,
-      function () {
-        window.location.hash = hash;
-      }
-    );
+    this.init();
   }
+
+  init() {
+    this.setupEventListeners();
+    this.handleResize();
+    this.setMenuHeight();
+  }
+
+  setupEventListeners() {
+    this.toggleButton?.addEventListener("click", (e) => {
+      e.preventDefault();
+      this.toggleMenu();
+    });
+
+    window.addEventListener("resize", () => this.handleResize());
+
+    this.navLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        if (window.innerWidth < this.mobileBreakpoint) {
+          this.toggleMenu();
+        }
+      });
+    });
+
+    this.scrollLinks.forEach((link) => {
+      link.addEventListener("click", (e) => this.handleSmoothScroll(e));
+    });
+  }
+
+  toggleMenu() {
+    // Instead of style.display, we use a CSS class for better performance
+    this.menu.classList.toggle("show");
+  }
+
+  handleResize() {
+    if (window.innerWidth > this.mobileBreakpoint) {
+      this.menu.classList.remove("show");
+      this.menu.style.display = "";
+    }
+    this.setMenuHeight();
+  }
+
+  setMenuHeight() {
+    if (this.openMenuContainer) {
+      this.openMenuContainer.style.height = `${window.innerHeight}px`;
+    }
+  }
+
+  handleSmoothScroll(event) {
+    const hash = event.currentTarget.hash;
+    if (hash && hash !== "") {
+      event.preventDefault();
+      const targetElement = document.querySelector(hash);
+      if (targetElement) {
+        window.scrollTo({
+          top: targetElement.offsetTop - 40,
+          behavior: "smooth",
+        });
+        history.pushState(null, null, hash);
+      }
+    }
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  new NavigationController();
 });

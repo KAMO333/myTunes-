@@ -293,3 +293,19 @@ nav a#openup {
     display: none;
   }
 }
+
+/* New Menu Toggle Logic */
+@media screen and (max-width: 580px) {
+  nav ul {
+    display: none; /* Default hidden on mobile */
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    max-height: 0;
+  }
+
+  /* This class will be toggled via Vanilla JS */
+  nav ul.show {
+    display: block;
+    max-height: 500px; /* Large enough to fit all items */
+  }
+}
