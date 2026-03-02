@@ -72,6 +72,19 @@ class NavigationController {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  new NavigationController();
-});
+if (typeof window !== "undefined" && typeof document !== "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      () => new NavigationController(),
+    );
+  } else {
+    // This prevents double-init if the script is loaded after DOM is ready
+    // But for Jest, we want to make sure we aren't auto-running if there's no nav
+    if (document.querySelector("nav ul")) {
+      new NavigationController();
+    }
+  }
+}
+
+export default NavigationController;
