@@ -1,90 +1,157 @@
-class NavigationController {
-  constructor() {
-    this.menu = document.querySelector("nav ul");
-    this.toggleButton = document.getElementById("openup");
-    this.navLinks = document.querySelectorAll("nav li");
-    this.scrollLinks = document.querySelectorAll(".cf a");
-    this.openMenuContainer = document.querySelector(".open-menu");
-    this.mobileBreakpoint = 580; // Updated to match your CSS media query
+import { musicData } from "./musicData.js";
 
+class MusicApp {
+  constructor() {
+    this.navLinks = document.querySelectorAll(".nav-links a");
+    this.themeToggle = document.getElementById("theme-toggle");
+    this.hamburger = document.getElementById("hamburger");
+    this.navDrawer = document.getElementById("nav-drawer");
+    this.drawerOverlay = document.getElementById("drawer-overlay");
+    this.drawerLinks = document.querySelectorAll(".drawer-link");
     this.init();
   }
 
   init() {
+    this.renderMusic();
     this.setupEventListeners();
-    this.handleResize();
-    this.setMenuHeight();
+    this.loadTheme();
+  }
+
+  renderMusic() {
+    const browseGrid = document.querySelector("#browse .media-grid");
+    const radioGrid = document.querySelector("#radio .media-grid");
+    const songList = document.querySelector("#songs .song-list");
+
+    musicData.forEach((track) => {
+      const cardHtml = `
+        <div class="album-card" data-title="${track.title}" data-artist="${track.artist}" data-img="${track.img}">
+          <div class="art-wrapper">
+            <img src="${track.img}" alt="${track.title}" loading="lazy">
+          </div>
+          <span class="card-title">${track.title}</span>
+          <span class="card-artist">${track.artist}</span>
+        </div>
+      `;
+
+      if (track.section === "browse" && browseGrid)
+        browseGrid.innerHTML += cardHtml;
+      if (track.section === "radio" && radioGrid)
+        radioGrid.innerHTML += cardHtml;
+
+      if (songList && track.section !== "radio") {
+        songList.innerHTML += `
+          <div class="song-item" data-title="${track.title}" data-artist="${track.artist}" data-img="${track.img}">
+            <img src="${track.img}" alt="${track.title}" loading="lazy">
+            <div class="song-info">
+              <b>${track.title}</b>
+              <small>${track.artist}</small>
+            </div>
+            <span class="song-duration">${track.duration}</span>
+          </div>
+        `;
+      }
+    });
   }
 
   setupEventListeners() {
-    this.toggleButton?.addEventListener("click", (e) => {
-      e.preventDefault();
-      this.toggleMenu();
+    const masterPlay = document.getElementById("master-play");
+
+    // Play / Pause
+    masterPlay.addEventListener("click", () => {
+      if (masterPlay.classList.contains("fa-play-circle")) {
+        masterPlay.classList.replace("fa-play-circle", "fa-pause-circle");
+      } else {
+        masterPlay.classList.replace("fa-pause-circle", "fa-play-circle");
+      }
     });
 
-    window.addEventListener("resize", () => this.handleResize());
+    // Theme Toggle
+    this.themeToggle.addEventListener("click", () => {
+      const isDark = document.body.hasAttribute("data-theme");
+      if (isDark) {
+        document.body.removeAttribute("data-theme");
+        this.themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        localStorage.setItem("theme", "light");
+      } else {
+        document.body.setAttribute("data-theme", "dark");
+        this.themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        localStorage.setItem("theme", "dark");
+      }
+    });
 
-    this.navLinks.forEach((link) => {
-      link.addEventListener("click", () => {
-        if (window.innerWidth < this.mobileBreakpoint) {
-          this.toggleMenu();
+    // Hamburger + Drawer
+    this.hamburger.addEventListener("click", () => this.toggleDrawer());
+    this.drawerOverlay.addEventListener("click", () => this.closeDrawer());
+    this.drawerLinks.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.closeDrawer();
+        const target = document.querySelector(link.getAttribute("href"));
+        if (target) {
+          setTimeout(() => {
+            window.scrollTo({ top: target.offsetTop - 70, behavior: "smooth" });
+          }, 200);
         }
       });
     });
 
-    this.scrollLinks.forEach((link) => {
-      link.addEventListener("click", (e) => this.handleSmoothScroll(e));
+    // Select track
+    document.addEventListener("click", (e) => {
+      const el = e.target.closest("[data-title]");
+      if (el) {
+        const { title, artist, img } = el.dataset;
+        document.getElementById("current-song").innerText = title;
+        document.getElementById("current-artist").innerText = artist;
+        document.getElementById("player-art").style.backgroundImage =
+          `url(${img})`;
+        masterPlay.classList.replace("fa-play-circle", "fa-pause-circle");
+      }
+    });
+
+    // Smooth Scroll (desktop nav)
+    this.navLinks.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const target = document.querySelector(link.getAttribute("href"));
+        if (target) {
+          window.scrollTo({ top: target.offsetTop - 70, behavior: "smooth" });
+        }
+      });
+    });
+
+    // Close drawer on resize to desktop
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 768) this.closeDrawer();
     });
   }
 
-  toggleMenu() {
-    // Instead of style.display, we use a CSS class for better performance
-    this.menu.classList.toggle("show");
-  }
-
-  handleResize() {
-    if (window.innerWidth > this.mobileBreakpoint) {
-      this.menu.classList.remove("show");
-      this.menu.style.display = "";
-    }
-    this.setMenuHeight();
-  }
-
-  setMenuHeight() {
-    if (this.openMenuContainer) {
-      this.openMenuContainer.style.height = `${window.innerHeight}px`;
+  toggleDrawer() {
+    const isOpen = this.navDrawer.classList.contains("open");
+    if (isOpen) {
+      this.closeDrawer();
+    } else {
+      this.openDrawer();
     }
   }
 
-  handleSmoothScroll(event) {
-    const hash = event.currentTarget.hash;
-    if (hash && hash !== "") {
-      event.preventDefault();
-      const targetElement = document.querySelector(hash);
-      if (targetElement) {
-        window.scrollTo({
-          top: targetElement.offsetTop - 40,
-          behavior: "smooth",
-        });
-        history.pushState(null, null, hash);
-      }
+  openDrawer() {
+    this.navDrawer.classList.add("open");
+    this.hamburger.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  closeDrawer() {
+    this.navDrawer.classList.remove("open");
+    this.hamburger.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  loadTheme() {
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.setAttribute("data-theme", "dark");
+      this.themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
     }
   }
 }
 
-if (typeof window !== "undefined" && typeof document !== "undefined") {
-  if (document.readyState === "loading") {
-    document.addEventListener(
-      "DOMContentLoaded",
-      () => new NavigationController(),
-    );
-  } else {
-    // This prevents double-init if the script is loaded after DOM is ready
-    // But for Jest, we want to make sure we aren't auto-running if there's no nav
-    if (document.querySelector("nav ul")) {
-      new NavigationController();
-    }
-  }
-}
-
-export default NavigationController;
+new MusicApp();
