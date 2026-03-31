@@ -15,6 +15,23 @@ class MusicApp {
     this.renderMusic();
     this.setupEventListeners();
     this.loadTheme();
+    this.playRandomTrack();
+  }
+
+  displayTrack(track) {
+    const masterPlay = document.getElementById("master-play");
+    document.getElementById("current-song").innerText = track.title;
+    document.getElementById("current-artist").innerText = track.artist;
+    document.getElementById("player-art").style.backgroundImage =
+      `url(${track.img})`;
+  }
+
+  playRandomTrack() {
+    if (musicData.length > 0) {
+      const randomIndex = Math.floor(Math.random() * musicData.length);
+      const randomTrack = musicData[randomIndex];
+      this.displayTrack(randomTrack);
+    }
   }
 
   renderMusic() {
@@ -99,11 +116,8 @@ class MusicApp {
     document.addEventListener("click", (e) => {
       const el = e.target.closest("[data-title]");
       if (el) {
-        const { title, artist, img } = el.dataset;
-        document.getElementById("current-song").innerText = title;
-        document.getElementById("current-artist").innerText = artist;
-        document.getElementById("player-art").style.backgroundImage =
-          `url(${img})`;
+        this.displayTrack(el.dataset);
+        const masterPlay = document.getElementById("master-play");
         masterPlay.classList.replace("fa-play-circle", "fa-pause-circle");
       }
     });
