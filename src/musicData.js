@@ -48,6 +48,14 @@ export const musicData = [
     section: "radio",
   },
   {
+    id: 6,
+    title: "Deep-Shades of House",
+    artist: "Lars Behrenroth",
+    img: "https://images.unsplash.com/photo-1468164016595-6108e4c60c8b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mjh8fG11c2ljfGVufDB8fDB8fHww", // electric blue neon
+    duration: "Live",
+    section: "radio",
+  },
+  {
     id: 7,
     title: "Ibiza Sunsets",
     artist: "Carl Cox",
@@ -157,6 +165,30 @@ export const musicData = [
     artist: "Dj Merlon",
     img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800", // warm sunset ocean
     duration: "8:00",
+    section: "browse",
+  },
+  {
+    id: 21,
+    title: "The Journey",
+    artist: "Mike Dunn",
+    img: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // warm sunset ocean
+    duration: "7:40",
+    section: "browse",
+  },
+  {
+    id: 22,
+    title: "Monk and the Machine",
+    artist: "Louie Vega",
+    img: "https://images.unsplash.com/photo-1619983081563-430f63602796?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8bXVzaWN8ZW58MHx8MHx8fDA%3D", // warm sunset ocean
+    duration: "10:23",
+    section: "browse",
+  },
+  {
+    id: 23,
+    title: "The Journey Continues",
+    artist: "Dj Wayno",
+    img: "https://images.unsplash.com/photo-1458560871784-56d23406c091?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fG11c2ljfGVufDB8fDB8fHww", // warm sunset ocean
+    duration: "6:00",
     section: "browse",
   },
 ];

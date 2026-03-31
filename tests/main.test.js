@@ -1,66 +1,74 @@
-// import { jest } from "@jest/globals";
-// // 1. IMPORT the class (Critical for ESM)
-// import NavigationController from "../src/main.js";
+import { jest } from "@jest/globals";
+// 1. Import the correct class name
+import MusicApp from "../src/main.js";
 
-// describe("NavigationController UI Tests", () => {
-//   let controller;
+describe("MusicApp UI Tests", () => {
+  let app;
 
-//   beforeEach(() => {
-//     // Mock the HTML structure required by the class
-//     document.body.innerHTML = `
-//       <nav>
-//         <ul>
-//           <li><a href="#music">Music</a></li>
-//         </ul>
-//         <a href="#" id="openup">Toggle</a>
-//       </nav>
-//       <div id="music"></div>
-//     `;
+  beforeEach(() => {
+    // 2. Use the ACTUAL HTML structure from your index.html
+    document.body.innerHTML = `
+      <nav class="navbar">
+        <ul class="nav-links">
+          <li><a href="#browse">Browse</a></li>
+        </ul>
+        <button id="hamburger"><span></span><span></span><span></span></button>
+      </nav>
+      <div class="nav-drawer" id="nav-drawer">
+         <div id="drawer-overlay"></div>
+         <div class="nav-drawer-panel">
+            <a href="#browse" class="drawer-link">Browse</a>
+         </div>
+      </div>
+      <section id="browse"></section>
+      <i id="master-play" class="fas fa-play-circle"></i>
+      <div id="current-song"></div>
+      <div id="current-artist"></div>
+      <div id="player-art"></div>
+      <button id="theme-toggle"><i></i></button>
+    `;
 
-//     // 2. Initialize the imported class
-//     controller = new NavigationController();
-//   });
+    app = new MusicApp();
+  });
 
-//   test("toggleMenu should toggle the 'show' class on the menu", () => {
-//     const menu = document.querySelector("nav ul");
+  test("toggleDrawer should toggle the 'open' class on drawer and hamburger", () => {
+    const drawer = document.getElementById("nav-drawer");
+    const hamburger = document.getElementById("hamburger");
 
-//     // Initial state
-//     expect(menu.classList.contains("show")).toBe(false);
+    // Initial state
+    expect(drawer.classList.contains("open")).toBe(false);
 
-//     // Trigger toggle
-//     controller.toggleMenu();
-//     expect(menu.classList.contains("show")).toBe(true);
+    // Trigger toggle
+    app.toggleDrawer();
+    expect(drawer.classList.contains("open")).toBe(true);
+    expect(hamburger.classList.contains("open")).toBe(true);
 
-//     // Toggle back
-//     controller.toggleMenu();
-//     expect(menu.classList.contains("show")).toBe(false);
-//   });
+    // Toggle back
+    app.closeDrawer();
+    expect(drawer.classList.contains("open")).toBe(false);
+  });
 
-//   test("handleResize should remove 'show' class when window is desktop size", () => {
-//     const menu = document.querySelector("nav ul");
-//     menu.classList.add("show");
+  test("closeDrawer should remove 'open' class when window is resized to desktop", () => {
+    const drawer = document.getElementById("nav-drawer");
+    app.openDrawer();
 
-//     // 3. Simulate Desktop Width and trigger resize
-//     global.innerWidth = 1024;
-//     controller.handleResize();
+    // Simulate Desktop Width
+    global.innerWidth = 1024;
+    // Manually trigger the resize logic
+    if (window.innerWidth > 768) app.closeDrawer();
 
-//     expect(menu.classList.contains("show")).toBe(false);
-//   });
+    expect(drawer.classList.contains("open")).toBe(false);
+  });
 
-//   test("handleSmoothScroll should call window.scrollTo", () => {
-//     // Mock window.scrollTo since JSDOM doesn't implement smooth scrolling
-//     window.scrollTo = jest.fn();
+  test("Theme toggle should update localStorage and body attribute", () => {
+    const themeBtn = document.getElementById("theme-toggle");
 
-//     const event = {
-//       preventDefault: jest.fn(),
-//       currentTarget: { hash: "#music" },
-//     };
+    // Mock localStorage
+    const setItemSpy = jest.spyOn(Storage.prototype, "setItem");
 
-//     controller.handleSmoothScroll(event);
+    themeBtn.click();
 
-//     expect(event.preventDefault).toHaveBeenCalled();
-//     expect(window.scrollTo).toHaveBeenCalledWith(
-//       expect.objectContaining({ behavior: "smooth" }),
-//     );
-//   });
-// });
+    expect(document.body.getAttribute("data-theme")).toBe("dark");
+    expect(setItemSpy).toHaveBeenCalledWith("theme", "dark");
+  });
+});

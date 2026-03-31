@@ -154,4 +154,8 @@ class MusicApp {
   }
 }
 
-new MusicApp();
+if (typeof process === "undefined" || process.env.NODE_ENV !== "test") {
+  new MusicApp();
+}
+
+export default MusicApp;
